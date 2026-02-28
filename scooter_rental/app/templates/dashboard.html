@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h4 mb-1">Dashboard</h1>
+        <div class="text-muted">Hallo {{ current_user.username }} ({{ current_user.role }})</div>
+      </div>
+    </div>
+  </div>
+
+  {% if current_user.role == "provider" %}
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5">Provider</h2>
+        <a class="btn btn-outline-primary" href="{{ url_for('web.scooters') }}">Scooter verwalten</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if current_user.role == "rider" %}
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5">Miete starten</h2>
+        <form method="post" action="{{ url_for('web.rent_start') }}" class="row g-2">
+          <div class="col-12">
+            <input class="form-control" name="code" placeholder="Scooter Code (QR)" required>
+          </div>
+          <div class="col-6">
+            <input class="form-control" name="lat" placeholder="lat" value="47.3769">
+          </div>
+          <div class="col-6">
+            <input class="form-control" name="lng" placeholder="lng" value="8.5417">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-success w-100" type="submit">Start</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h5">Aktive Miete</h2>
+
+        {% if active_rental %}
+          <p class="mb-2">
+            <span class="badge text-bg-primary">Rental #{{ active_rental.id }}</span>
+            Scooter: <strong>{{ active_rental.scooter.scooter_code }}</strong>
+          </p>
+
+          <form method="post" action="{{ url_for('web.rent_end') }}" class="row g-2">
+            <input type="hidden" name="rental_id" value="{{ active_rental.id }}">
+            <div class="col-12">
+              <input class="form-control" name="km" placeholder="Kilometer" value="1.2">
+            </div>
+            <div class="col-6">
+              <input class="form-control" name="lat" placeholder="lat" value="47.3769">
+            </div>
+            <div class="col-6">
+              <input class="form-control" name="lng" placeholder="lng" value="8.5417">
+            </div>
+            <div class="col-12">
+              <button class="btn btn-danger w-100" type="submit">Beenden</button>
+            </div>
+          </form>
+        {% else %}
+          <p class="text-muted mb-0">Keine aktive Miete.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
