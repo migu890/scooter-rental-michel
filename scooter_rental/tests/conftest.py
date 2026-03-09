@@ -3,11 +3,9 @@ import sys
 import pathlib
 import pytest
 
-# Projektroot (Ordner mit wsgi.py) in sys.path einfügen
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-# Test-ENV setzen bevor create_app() importiert wird
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 os.environ["SECRET_KEY"] = "test-secret-key"
 

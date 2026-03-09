@@ -21,7 +21,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    role = db.Column(db.String(20), nullable=False)  # provider / rider
+    role = db.Column(db.String(20), nullable=False)
     api_token = db.Column(db.String(64), unique=True, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -72,7 +72,6 @@ class Rental(db.Model):
 
     kilometers = db.Column(db.Float, nullable=False, default=0.0)
 
-    # Numeric ist in MariaDB ok (DECIMAL)
     total_price_chf = db.Column(db.Numeric(10, 2), nullable=True)
 
     scooter = db.relationship("Scooter", backref="rentals")

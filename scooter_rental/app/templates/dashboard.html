@@ -30,8 +30,16 @@
         <h2 class="h5">Miete starten</h2>
         <form method="post" action="{{ url_for('web.rent_start') }}" class="row g-2">
           <div class="col-12">
-            <input class="form-control" name="code" placeholder="Scooter Code (QR)" required>
-          </div>
+              <label class="form-label">Verfügbarer Scooter</label>
+              <select class="form-select" name="code" required>
+                <option value="">Bitte wählen...</option>
+                {% for scooter in available_scooters %}
+                  <option value="{{ scooter.scooter_code }}">
+                    {{ scooter.scooter_code }} — Akku {{ scooter.battery_percent }}% — {{ scooter.latitude }}, {{ scooter.longitude }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>         
           <div class="col-6">
             <input class="form-control" name="lat" placeholder="lat" value="47.3769">
           </div>

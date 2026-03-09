@@ -7,16 +7,16 @@ class RentalError(Exception):
     pass
 
 def start_rental(*, rider, scooter_code: str, lat: float, lng: float) -> Rental:
-    if rider.role != UserRole.RIDER.value:
+    if rider.role != "rider":
         raise RentalError("Only riders can start rentals.")
 
-    scooter = Scooter.query.filter_by(scooter_code=scooter_code).first()
-    if not scooter:
-        raise RentalError("Scooter not found.")
-    if scooter.status != ScooterStatus.AVAILABLE.value:
-        raise RentalError("Scooter not available.")
+    scooter = Scooter.query.filter_by(scooter_code=scooter_code.strip(), status="available").first()
 
-    scooter.status = ScooterStatus.RENTED.value
+    if not scooter:
+        raise RentalError("Scooter not found or not available.")
+
+    scooter.status = "rented"
+
     rental = Rental(
         scooter_id=scooter.id,
         rider_id=rider.id,
@@ -24,6 +24,7 @@ def start_rental(*, rider, scooter_code: str, lat: float, lng: float) -> Rental:
         start_lat=lat,
         start_lng=lng,
     )
+
     db.session.add(rental)
     db.session.commit()
     return rental

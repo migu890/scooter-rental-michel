@@ -16,13 +16,22 @@ def index():
 @login_required
 def dashboard():
     active_rental = None
-    if current_user.role == "rider":
-        active_rental = Rental.query.filter_by(rider_id=current_user.id, end_time=None).first()
-    return render_template("dashboard.html", active_rental=active_rental)
+    available_scooters = []
 
-# ----------------------------
-# Provider: Scooter verwalten
-# ----------------------------
+    if current_user.role == "rider":
+        active_rental = Rental.query.filter_by(
+            rider_id=current_user.id,
+            end_time=None
+        ).first()
+
+        available_scooters = Scooter.query.filter_by(status="available").all()
+
+    return render_template(
+        "dashboard.html",
+        active_rental=active_rental,
+        available_scooters=available_scooters
+    )
+
 @web_bp.route("/scooters", methods=["GET", "POST"])
 @login_required
 def scooters():
@@ -93,9 +102,6 @@ def scooter_delete(scooter_id):
     flash("Scooter gelöscht.", "success")
     return redirect(url_for("web.scooters"))
 
-# ----------------------------
-# Rider: Miete starten / beenden
-# ----------------------------
 @web_bp.route("/rent/start", methods=["POST"])
 @login_required
 def rent_start():
@@ -106,8 +112,17 @@ def rent_start():
     lat = float(request.form.get("lat", "0"))
     lng = float(request.form.get("lng", "0"))
 
+    if not code:
+        flash("Bitte einen Scooter auswählen.", "danger")
+        return redirect(url_for("web.dashboard"))
+
     try:
-        r = start_rental(rider=current_user, scooter_code=code, lat=lat, lng=lng)
+        r = start_rental(
+            rider=current_user,
+            scooter_code=code,
+            lat=lat,
+            lng=lng
+        )
         flash(f"Miete gestartet (id={r.id}).", "success")
     except RentalError as e:
         flash(str(e), "danger")
