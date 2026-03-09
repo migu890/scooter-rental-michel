@@ -4,14 +4,17 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .extensions import db, login_manager
 
+
 class UserRole(str, Enum):
     PROVIDER = "provider"
     RIDER = "rider"
+
 
 class ScooterStatus(str, Enum):
     AVAILABLE = "available"
     RENTED = "rented"
     MAINTENANCE = "maintenance"
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -26,8 +29,12 @@ class User(UserMixin, db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-    scooters = db.relationship("Scooter", backref="provider", lazy=True, foreign_keys="Scooter.provider_id")
-    rentals = db.relationship("Rental", backref="rider", lazy=True, foreign_keys="Rental.rider_id")
+    scooters = db.relationship(
+        "Scooter", backref="provider", lazy=True, foreign_keys="Scooter.provider_id"
+    )
+    rentals = db.relationship(
+        "Rental", backref="rider", lazy=True, foreign_keys="Rental.rider_id"
+    )
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -35,9 +42,11 @@ class User(UserMixin, db.Model):
     def verify_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
 
+
 @login_manager.user_loader
 def load_user(user_id: str):
     return db.session.get(User, int(user_id))
+
 
 class Scooter(db.Model):
     __tablename__ = "scooters"
@@ -49,11 +58,14 @@ class Scooter(db.Model):
     latitude = db.Column(db.Float, nullable=False, default=0.0)
     longitude = db.Column(db.Float, nullable=False, default=0.0)
 
-    status = db.Column(db.String(20), nullable=False, default=ScooterStatus.AVAILABLE.value)
+    status = db.Column(
+        db.String(20), nullable=False, default=ScooterStatus.AVAILABLE.value
+    )
 
     provider_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
 
 class Rental(db.Model):
     __tablename__ = "rentals"

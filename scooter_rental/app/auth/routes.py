@@ -7,6 +7,7 @@ from .forms import RegisterForm, LoginForm
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -22,7 +23,7 @@ def register():
         user = User(
             username=form.username.data.strip(),
             email=form.email.data.strip(),
-            role=form.role.data
+            role=form.role.data,
         )
         user.set_password(form.password.data)
 
@@ -37,13 +38,16 @@ def register():
 
     return render_template("auth_register.html", form=form)
 
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
 
     if form.validate_on_submit():
         ident = form.username.data.strip()
-        user = User.query.filter((User.username == ident) | (User.email == ident)).first()
+        user = User.query.filter(
+            (User.username == ident) | (User.email == ident)
+        ).first()
 
         if not user or not user.verify_password(form.password.data):
             flash("Login fehlgeschlagen.", "danger")
@@ -57,6 +61,7 @@ def login():
         return redirect(url_for("web.dashboard"))
 
     return render_template("auth_login.html", form=form)
+
 
 @auth_bp.route("/logout")
 @login_required

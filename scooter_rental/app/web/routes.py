@@ -6,11 +6,13 @@ from app.services.rental_service import start_rental, end_rental, RentalError
 
 web_bp = Blueprint("web", __name__)
 
+
 @web_bp.route("/")
 def index():
     if current_user.is_authenticated:
         return redirect(url_for("web.dashboard"))
     return redirect(url_for("auth.login"))
+
 
 @web_bp.route("/dashboard")
 @login_required
@@ -20,8 +22,7 @@ def dashboard():
 
     if current_user.role == "rider":
         active_rental = Rental.query.filter_by(
-            rider_id=current_user.id,
-            end_time=None
+            rider_id=current_user.id, end_time=None
         ).first()
 
         available_scooters = Scooter.query.filter_by(status="available").all()
@@ -29,8 +30,9 @@ def dashboard():
     return render_template(
         "dashboard.html",
         active_rental=active_rental,
-        available_scooters=available_scooters
+        available_scooters=available_scooters,
     )
+
 
 @web_bp.route("/scooters", methods=["GET", "POST"])
 @login_required
@@ -58,7 +60,7 @@ def scooters():
             latitude=lat,
             longitude=lng,
             status="available",
-            provider_id=current_user.id
+            provider_id=current_user.id,
         )
         db.session.add(s)
         db.session.commit()
@@ -67,6 +69,7 @@ def scooters():
 
     my_scooters = Scooter.query.filter_by(provider_id=current_user.id).all()
     return render_template("scooters.html", scooters=my_scooters)
+
 
 @web_bp.route("/scooter/<int:scooter_id>/edit", methods=["POST"])
 @login_required
@@ -87,6 +90,7 @@ def scooter_edit(scooter_id):
     flash("Scooter aktualisiert.", "success")
     return redirect(url_for("web.scooters"))
 
+
 @web_bp.route("/scooter/<int:scooter_id>/delete", methods=["POST"])
 @login_required
 def scooter_delete(scooter_id):
@@ -101,6 +105,7 @@ def scooter_delete(scooter_id):
     db.session.commit()
     flash("Scooter gelöscht.", "success")
     return redirect(url_for("web.scooters"))
+
 
 @web_bp.route("/rent/start", methods=["POST"])
 @login_required
@@ -117,17 +122,13 @@ def rent_start():
         return redirect(url_for("web.dashboard"))
 
     try:
-        r = start_rental(
-            rider=current_user,
-            scooter_code=code,
-            lat=lat,
-            lng=lng
-        )
+        r = start_rental(rider=current_user, scooter_code=code, lat=lat, lng=lng)
         flash(f"Miete gestartet (id={r.id}).", "success")
     except RentalError as e:
         flash(str(e), "danger")
 
     return redirect(url_for("web.dashboard"))
+
 
 @web_bp.route("/rent/end", methods=["POST"])
 @login_required
@@ -141,7 +142,9 @@ def rent_end():
     lng = float(request.form.get("lng", "0"))
 
     try:
-        r = end_rental(rider=current_user, rental_id=rental_id, kilometers=km, lat=lat, lng=lng)
+        r = end_rental(
+            rider=current_user, rental_id=rental_id, kilometers=km, lat=lat, lng=lng
+        )
         flash(f"Miete beendet. Preis CHF {r.total_price_chf}", "success")
     except RentalError as e:
         flash(str(e), "danger")

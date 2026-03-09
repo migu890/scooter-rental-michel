@@ -1,7 +1,15 @@
 import json
 from datetime import datetime, timedelta
 
-def create_user(db, User, username="rider1", email="rider1@test.ch", role="rider", password="Passwort123!"):
+
+def create_user(
+    db,
+    User,
+    username="rider1",
+    email="rider1@test.ch",
+    role="rider",
+    password="Passwort123!",
+):
     u = User(username=username, email=email, role=role)
     u.set_password(password)
     # Token wird im Register normalerweise gesetzt – für Tests setzen wir ihn optional später
@@ -9,8 +17,11 @@ def create_user(db, User, username="rider1", email="rider1@test.ch", role="rider
     db.session.commit()
     return u
 
+
 def create_provider_and_scooter(db, User, Scooter):
-    provider = create_user(db, User, "provider1", "provider1@test.ch", "provider", "Passwort123!")
+    provider = create_user(
+        db, User, "provider1", "provider1@test.ch", "provider", "Passwort123!"
+    )
     scooter = Scooter(
         scooter_code="SC-001",
         battery_percent=90,
@@ -23,10 +34,12 @@ def create_provider_and_scooter(db, User, Scooter):
     db.session.commit()
     return provider, scooter
 
+
 def test_api_login_invalid(client):
     resp = client.post("/api/login", json={"username": "nope", "password": "nope"})
     assert resp.status_code == 401
     assert resp.get_json()["error"] == "invalid credentials"
+
 
 def test_api_login_and_token_then_rentals_me_unauthorized(client, app):
     from app.extensions import db
@@ -35,6 +48,7 @@ def test_api_login_and_token_then_rentals_me_unauthorized(client, app):
     create_user(db, User, "rider2", "rider2@test.ch", "rider", "Passwort123!")
     resp = client.get("/api/rentals/me")
     assert resp.status_code == 401
+
 
 def test_api_scooters_returns_list(client, app):
     from app.extensions import db
@@ -47,6 +61,7 @@ def test_api_scooters_returns_list(client, app):
     data = resp.get_json()
     assert isinstance(data, list)
     assert any(s["code"] == "SC-001" for s in data)
+
 
 def test_rental_service_start_and_end(app):
     from app.extensions import db
@@ -77,6 +92,7 @@ def test_rental_service_start_and_end(app):
     assert s.latitude == 47.2
     assert s.longitude == 8.2
 
+
 def test_api_login_then_rentals_me_returns_data(client, app):
     from app.extensions import db
     from app.models import User, Scooter
@@ -93,7 +109,9 @@ def test_api_login_then_rentals_me_returns_data(client, app):
     end_rental(rider=rider, rental_id=r.id, kilometers=0.5, lat=47.0, lng=8.0)
 
     # login to get token
-    resp_login = client.post("/api/login", json={"username": "rider4", "password": "Passwort123!"})
+    resp_login = client.post(
+        "/api/login", json={"username": "rider4", "password": "Passwort123!"}
+    )
     assert resp_login.status_code == 200
     token = resp_login.get_json()["token"]
     assert token

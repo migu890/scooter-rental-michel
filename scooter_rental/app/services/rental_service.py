@@ -3,14 +3,18 @@ from ..extensions import db
 from ..models import Scooter, Rental, ScooterStatus, UserRole
 from .pricing import calculate_price_minutes
 
+
 class RentalError(Exception):
     pass
+
 
 def start_rental(*, rider, scooter_code: str, lat: float, lng: float) -> Rental:
     if rider.role != "rider":
         raise RentalError("Only riders can start rentals.")
 
-    scooter = Scooter.query.filter_by(scooter_code=scooter_code.strip(), status="available").first()
+    scooter = Scooter.query.filter_by(
+        scooter_code=scooter_code.strip(), status="available"
+    ).first()
 
     if not scooter:
         raise RentalError("Scooter not found or not available.")
@@ -29,7 +33,10 @@ def start_rental(*, rider, scooter_code: str, lat: float, lng: float) -> Rental:
     db.session.commit()
     return rental
 
-def end_rental(*, rider, rental_id: int, kilometers: float, lat: float, lng: float) -> Rental:
+
+def end_rental(
+    *, rider, rental_id: int, kilometers: float, lat: float, lng: float
+) -> Rental:
     rental = Rental.query.get(rental_id)
     if not rental:
         raise RentalError("Rental not found.")
