@@ -1,0 +1,43 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f7fb;
+}
+
+.navbar {
+    background-color: #0d2c6c !important; /* dunkelblau */
+}
+
+.navbar-brand {
+    color: white !important;
+    font-weight: 600;
+}
+
+.navbar-text {
+    color: white !important;
+}
+
+.nav-link {
+    color: white !important;
+}
+
+.nav-link:hover {
+    color: #cfd8ff !important;
+}
+
+.btn-outline-light {
+    border-color: white;
+    color: white;
+}
+
+.btn-outline-light:hover {
+    background-color: white;
+    color: #0d2c6c;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
